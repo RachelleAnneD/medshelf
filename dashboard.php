@@ -43,38 +43,110 @@ if ($barangayResult && $barangayResult->num_rows > 0) {
 </head>
 
 <body>
-    <!-- Header Bar -->
-    <div class="header-bar">
-        <div class="header-content d-flex align-items-center">
-            <img src="logo.png" alt="Medshelf Logo">
-            <div>
-                <h1>Inventory Management System</h1>
-                <p>San Juan, La Union Health Care</p>
-            </div>
-        </div>
-        <div class="profile-links">
-            <a href="profile.php">Profile</a>
-            <a href="logout.php">Logout</a>
+<!-- Header Bar -->
+<div class="header-bar">
+    <div class="header-content d-flex align-items-center">
+        <img src="logo.png" alt="Medshelf Logo" class="header-logo">
+        <div class="header-text">
+            <h1 class="header-title">Inventory Management System</h1>
+            <p class="header-subtitle">San Juan, La Union Health Care</p>
         </div>
     </div>
+    <div class="profile-links">
+        <a href="profile.php">Profile</a>
+        <a href="logout.php">Logout</a>
+    </div>
+</div>
+
+<style>
+<!-- Header Bar -->
+<div class="header-bar">
+    <div class="header-content d-flex align-items-center">
+        <img src="logo.png" alt="Medshelf Logo" class="header-logo">
+        <div class="header-text">
+            <h1 class="header-title">Inventory Management System</h1>
+            <p class="header-subtitle">San Juan, La Union Health Care</p>
+        </div>
+    </div>
+    <div class="profile-links">
+        <a href="profile.php" class="profile-link">Profile</a>
+        <a href="logout.php" class="profile-link">Logout</a>
+    </div>
+</div>
+
+<style>
+    .header-bar {
+        background-color: #343a40; /* Dark background for better contrast */
+        color: #ffffff; /* White text for visibility */
+        border-bottom: 1px solid #495057; /* Subtle border */
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 1000;
+        padding: 10px 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+    }
+
+    .header-logo {
+        height: 40px; /* Smaller logo height */
+        margin-right: 15px;
+    }
+
+    .header-text {
+        line-height: 1.2; /* Reduce text spacing */
+    }
+
+    .header-title {
+        font-size: 18px; /* Smaller title */
+        margin: 0;
+        font-weight: bold;
+    }
+
+    .header-subtitle {
+        font-size: 14px; /* Smaller subtitle */
+        margin: 0;
+    }
+
+    .profile-links a {
+        margin-left: 15px;
+        font-size: 14px; /* Smaller links */
+        color: #ffffff; /* White text */
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .profile-links a:hover {
+        color: #ffc107; /* Add a yellow hover effect */
+        text-decoration: underline;
+    }
+</style>
+
 
     <!-- Sidebar Navigation -->
-    <div class="sidebar">
-        <a href="dashboard.php" class="nav-link active">Dashboard</a>
-        <button class="dropdown-btn">Patients
-            <span class="ms-1">&#9660;</span>
-        </button>
-        <div class="dropdown-container">
-            <a href="add_patient.php" class="nav-link">Add Patient</a>
-            <a href="view_patients.php" class="nav-link">View Patients</a>
-        </div>
-        <button class="dropdown-btn">Barangay
-            <span class="ms-1">&#9660;</span>
-        </button>
-        <div class="dropdown-container">
-            <a href="barangay_list.php" class="nav-link">View Barangays</a>
-        </div>
+<div class="sidebar">
+    <a href="dashboard.php" class="nav-link active">Dashboard</a>
+    <button class="dropdown-btn">Patients
+        <span class="ms-1">&#9660;</span>
+    </button>
+    <div class="dropdown-container">
+        <a href="add_patient.php" class="nav-link">Add Patient</a>
     </div>
+    <button class="dropdown-btn">Barangay
+        <span class="ms-1">&#9660;</span>
+    </button>
+    <div class="dropdown-container">
+        <a href="barangay_list.php" class="nav-link">View Barangays</a>
+    </div>
+</div>
+
 
     <!-- Main Content -->
     <main class="content">

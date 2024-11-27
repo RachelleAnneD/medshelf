@@ -1,58 +1,28 @@
 <?php
-session_start();
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
-}
+require_once 'db_connection.php';
 
-$conn = new mysqli("localhost", "root", "", "medshelf");
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-// Check if the form is submitted via POST
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Get the updated values from the form
-    $id = $_POST['id'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $patientid = intval($_POST['patientid']);
+    $barangay_id = intval($_POST['barangay_id']);
     $fname = $_POST['fname'];
-    $lname = $_POST['lname'];
     $mname = $_POST['mname'];
+    $lname = $_POST['lname'];
     $nickname = $_POST['nickname'];
-    $address = $_POST['address'];
-    $sex = $_POST['sex'];
     $mobile_number = $_POST['mobile_number'];
-    $civil_status = $_POST['civil_status'];
-    $birthday = $_POST['birthday'];
-    $age = $_POST['age'];
-    $place_of_birth = $_POST['place_of_birth'];
-    $nationality = $_POST['nationality'];
-    $pwd_or_senior = $_POST['pwd_or_senior'];  // Ensure this is passed properly
-    $pwd_senior_no = $_POST['pwd_senior_no'];
-    $dependent_pin_no = $_POST['dependent_pin_no'];
-    $member_pin_no = $_POST['member_pin_no'];
+    // Retrieve additional fields as needed
 
-    // Update the patient details in the database
-    $sql = "UPDATE patients SET fname = ?, lname = ?, mname = ?, nickname = ?, address = ?, sex = ?, mobile_number = ?, civil_status = ?, birthday = ?, age = ?, place_of_birth = ?, nationality = ?, pwd_or_senior = ?, pwd_senior_no = ?, dependent_pin_no = ?, member_pin_no = ? WHERE id = ?";
+    $sql = "UPDATE patients 
+            SET fname = ?, mname = ?, lname = ?, nickname = ?, mobile_number = ?
+            WHERE patientid = ?";
     $stmt = $conn->prepare($sql);
-
-    if ($stmt === false) {
-        die('MySQL prepare failed: ' . $conn->error);
-    }
-
-    // Binding the parameters and executing
-    $stmt->bind_param("sssssssssssssissi", $fname, $lname, $mname, $nickname, $address, $sex, $mobile_number, $civil_status, $birthday, $age, $place_of_birth, $nationality, $pwd_or_senior, $pwd_senior_no, $dependent_pin_no, $member_pin_no, $id);
+    $stmt->bind_param('sssssi', $fname, $mname, $lname, $nickname, $mobile_number, $patientid);
 
     if ($stmt->execute()) {
-        // If the update is successful, redirect and display a success message
-        $_SESSION['message'] = "Patient information updated successfully!";
-        header("Location: view_patients.php?id=$id"); // Redirect to the patient's view page
+        // Redirect back to the view_barangay_patients.php page with the barangay ID
+        header("Location: view_barangay_patients.php?barangay_id=" . $barangay_id);
         exit();
     } else {
-        echo "Error updating patient details: " . $stmt->error;
+        echo "Error updating patient: " . $conn->error;
     }
-
-    $stmt->close();
 }
-
-$conn->close();
 ?>

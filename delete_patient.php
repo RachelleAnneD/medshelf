@@ -5,22 +5,24 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-$conn = new mysqli("localhost", "root", "", "medshelf");
+require_once 'db_connection.php';
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+// Check if the patient ID is provided
+if (!isset($_GET['id'])) {
+    die('Patient ID is missing!');
 }
 
-if (isset($_GET['id'])) {
-    $id = $_GET['id'];
+$patientId = intval($_GET['id']);
 
-    // Delete query
-    $sql = "DELETE FROM patients WHERE id = $id";
-    if ($conn->query($sql) === TRUE) {
-        echo "Patient deleted successfully!";
-        header("Location: view_patients.php"); // Redirect back to the list
-    } else {
-        echo "Error: " . $conn->error;
-    }
+// Delete the patient record
+$sql = "DELETE FROM patients WHERE patientid = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param('i', $patientId);
+
+if ($stmt->execute()) {
+    header("Location: view_barangay_patient.php?barangay_id=" . intval($_GET['barangay_id']));
+    exit();
+} else {
+    echo "Error deleting patient: " . $conn->error;
 }
 ?>

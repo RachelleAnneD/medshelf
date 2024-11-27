@@ -7,38 +7,49 @@ if (!isset($_SESSION['user_id'])) {
 
 include('db_connection.php'); // Include the database connection
 
-// Handle form submission
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Get form data
-    $fname = $_POST['fname'];
-    $mname = $_POST['mname'];
-    $lname = $_POST['lname'];
-    $nickname = $_POST['nickname'];
-    $address = $_POST['address'];
-    $barangay = $_POST['barangay'];
-    $municipality = $_POST['municipality'];
-    $province = $_POST['province'];
-    $dob = $_POST['dob'];
-    $age = $_POST['age'];
-    $birthplace = $_POST['birthplace'];
-    $email = $_POST['email'];
-    $mobile_number = $_POST['mobile_number'];
-    $sex = $_POST['sex'] ?? null;
-    $civil_status = $_POST['civil_status'];
-    $nationality = $_POST['nationality'];
-    $pwd_senior = $_POST['pwd_senior'];
-    $pwd_sc_no = $_POST['pwd_sc_no'];
-    $member_status = $_POST['member_status'];
-    $member_pin = $_POST['member_pin'];
-    $dependent_pin = $_POST['dependent_pin'];
-    $consent = isset($_POST['consent']) ? 1 : 0; // Checkbox
+$reviewData = false;
+$successMessage = '';
 
-    // Insert patient data into the database
-    $sql = "INSERT INTO patients (fname, mname, lname, nickname, address, barangay, municipality, province, date_of_birth, age, birthplace, email, mobile_number, sex, civil_status, nationality, pwd_senior, pwd_sc_no, member_status, member_pin_no, dependent_pin_no, consent) 
-            VALUES ('$fname', '$mname', '$lname', '$nickname', '$address', '$barangay', '$municipality', '$province', '$dob', '$age', '$birthplace', '$email', '$mobile_number', '$sex', '$civil_status', '$nationality', '$pwd_senior', '$pwd_sc_no', '$member_status', '$member_pin', '$dependent_pin', '$consent')";
-    
+// Handle form submission for review
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['review'])) {
+    $_SESSION['patient_data'] = $_POST;
+    $reviewData = true;
+}
+
+// Handle form confirmation for saving
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['confirm'])) {
+    $formData = $_SESSION['patient_data'];
+
+    // Escape all input fields
+    $fname = mysqli_real_escape_string($conn, $formData['fname']);
+    $mname = mysqli_real_escape_string($conn, $formData['mname']);
+    $lname = mysqli_real_escape_string($conn, $formData['lname']);
+    $nickname = mysqli_real_escape_string($conn, $formData['nickname']);
+    $barangay_id = mysqli_real_escape_string($conn, $formData['barangay']);
+    $municipality = mysqli_real_escape_string($conn, $formData['municipality']);
+    $province = mysqli_real_escape_string($conn, $formData['province']);
+    $dob = mysqli_real_escape_string($conn, $formData['dob']);
+    $age = mysqli_real_escape_string($conn, $formData['age']);
+    $birthplace = mysqli_real_escape_string($conn, $formData['birthplace']);
+    $email = mysqli_real_escape_string($conn, $formData['email']);
+    $mobile_number = mysqli_real_escape_string($conn, $formData['mobile_number']);
+    $sex = mysqli_real_escape_string($conn, $formData['sex']);
+    $civil_status = mysqli_real_escape_string($conn, $formData['civil_status']);
+    $nationality = mysqli_real_escape_string($conn, $formData['nationality']);
+    $pwd_senior = mysqli_real_escape_string($conn, $formData['pwd_senior']);
+    $pwd_sc_no = mysqli_real_escape_string($conn, $formData['pwd_sc_no']);
+    $member_status = mysqli_real_escape_string($conn, $formData['member_status']);
+    $member_pin = mysqli_real_escape_string($conn, $formData['member_pin']);
+    $dependent_pin = mysqli_real_escape_string($conn, $formData['dependent_pin']);
+    $consent = isset($formData['consent']) ? 'Yes' : 'No';
+
+    // Insert data into the database
+    $sql = "INSERT INTO patients (fname, mname, lname, nickname, barangay_id, municipality, province, date_of_birth, age, birthplace, email, mobile_number, sex, civil_status, nationality, pwd_senior, pwd_sc_no, member_status, member_pin_no, dependent_pin_no, consent) 
+            VALUES ('$fname', '$mname', '$lname', '$nickname', '$barangay_id', '$municipality', '$province', '$dob', '$age', '$birthplace', '$email', '$mobile_number', '$sex', '$civil_status', '$nationality', '$pwd_senior', '$pwd_sc_no', '$member_status', '$member_pin', '$dependent_pin', '$consent')";
+
     if (mysqli_query($conn, $sql)) {
-        header("Location: view_patients.php"); // Redirect to view patients after successful insertion
+        unset($_SESSION['patient_data']);
+        $successMessage = "Patient successfully added!";
     } else {
         echo "Error: " . $sql . "<br>" . mysqli_error($conn);
     }
@@ -54,29 +65,80 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Add Patient</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="common-style.css">
-    <script>
-        // This function ensures that the form is submitted to review_patient.php for previewing the patient information.
-        function reviewPatient() {
-            document.getElementById('patientForm').submit();
-        }
-    </script>
+    <style>
+        /* Dashboard-Matching Header Bar */
+        <style>
+    .header-bar {
+        background-color: #343a40; /* Dark background for better contrast */
+        color: #ffffff; /* White text for visibility */
+        border-bottom: 1px solid #495057; /* Subtle border */
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 1000;
+        padding: 10px 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+    }
+
+    .header-logo {
+        height: 40px; /* Smaller logo height */
+        margin-right: 15px;
+    }
+
+    .header-text {
+        line-height: 1.2; /* Reduce text spacing */
+    }
+
+    .header-title {
+        font-size: 18px; /* Smaller title */
+        margin: 0;
+        font-weight: bold;
+    }
+
+    .header-subtitle {
+        font-size: 14px; /* Smaller subtitle */
+        margin: 0;
+    }
+
+    .profile-links a {
+        margin-left: 15px;
+        font-size: 14px; /* Smaller links */
+        color: #ffffff; /* White text */
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .profile-links a:hover {
+        color: #ffc107; /* Add a yellow hover effect */
+        text-decoration: underline;
+    }
+</style>
+
 </head>
 
 <body>
-    <!-- Header Bar -->
-    <div class="header-bar">
-        <div class="header-content d-flex align-items-center">
-            <img src="logo.png" alt="Medshelf Logo">
-            <div>
-                <h1>Inventory Management System</h1>
-                <p>San Juan, La Union Health Care</p>
-            </div>
-        </div>
-        <div class="profile-links">
-            <a href="profile.php">Profile</a>
-            <a href="logout.php">Logout</a>
+<!-- Header Bar -->
+<div class="header-bar">
+    <div class="header-content d-flex align-items-center">
+        <img src="logo.png" alt="Medshelf Logo" class="header-logo">
+        <div class="header-text">
+            <h1 class="header-title">Inventory Management System</h1>
+            <p class="header-subtitle">San Juan, La Union Health Care</p>
         </div>
     </div>
+    <div class="profile-links">
+        <a href="profile.php" class="profile-link">Profile</a>
+        <a href="logout.php" class="profile-link">Logout</a>
+    </div>
+</div>
 
     <!-- Sidebar Navigation -->
     <div class="sidebar">
@@ -85,10 +147,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <span class="ms-1">&#9660;</span>
         </button>
         <div class="dropdown-container">
-            <a href="add_patient.php" class="nav-link">Add Patients</a>
-            <a href="view_patients.php" class="nav-link">View Patients</a>
+            <a href="add_patient.php" class="nav-link active">Add Patients</a>
         </div>
-        <button class="dropdown-btn">Barangay
+        <button class="dropdown-btn">Barangay</a>
             <span class="ms-1">&#9660;</span>
         </button>
         <div class="dropdown-container">
@@ -98,23 +159,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <!-- Main Content -->
     <main class="content">
-        <div class="form-container">
-            <h3 class="text-center mb-4">Add Patient</h3>
-            <form id="patientForm" action="review_patient.php" method="POST">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="fname" class="form-label">First Name</label>
-                            <input type="text" class="form-control" id="fname" name="fname" required>
+        <div class="container">
+            <div class="form-container">
+                <h3 class="text-center mb-4">Add Patient</h3>
+                <?php if ($successMessage): ?>
+                    <div class="alert alert-success text-center"><?= $successMessage; ?></div>
+                <?php endif; ?>
+
+                <!-- Patient Form -->
+                <?php if ($reviewData): ?>
+                    <h5 class="text-center">Review Patient Data</h5>
+                    <ul>
+                        <?php foreach ($_SESSION['patient_data'] as $key => $value): ?>
+                            <?php if ($key !== 'review'): ?>
+                                <li><strong><?= ucfirst($key) ?>:</strong> <?= htmlspecialchars($value) ?></li>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </ul>
+                    <form method="POST">
+                        <button type="submit" name="confirm" class="btn btn-success">Confirm</button>
+                        <a href="add_patient.php" class="btn btn-secondary">Edit</a>
+                    </form>
+                <?php else: ?>
+                    <form id="patientForm" method="POST">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="fname" class="form-label">First Name</label>
+                                    <input type="text" class="form-control" id="fname" name="fname" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="mname" class="form-label">Middle Name</label>
+                                    <input type="text" class="form-control" id="mname" name="mname" required>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="mname" class="form-label">Middle Name</label>
-                            <input type="text" class="form-control" id="mname" name="mname" required>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="row">
                     <div class="col-md-6">
@@ -131,22 +212,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
                 </div>
 
-                <div class="mb-3">
-                    <label for="address" class="form-label">Address</label>
-                    <textarea class="form-control" id="address" name="address" required></textarea>
-                </div>
-
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="barangay" class="form-label">Barangay</label>
                             <select class="form-control" id="barangay" name="barangay" required>
+                                <option value="" disabled selected>Select Barangay</option>
                                 <?php
-                                    // Fetch barangay options from the database
-                                    $barangay_query = "SELECT * FROM barangays";
+                                    $barangay_query = "SELECT id, barangay_name FROM barangays";
                                     $barangay_result = mysqli_query($conn, $barangay_query);
                                     while ($barangay = mysqli_fetch_assoc($barangay_result)) {
-                                        echo "<option value='" . $barangay['id'] . "'>" . $barangay['name'] . "</option>";
+                                        echo "<option value='" . $barangay['id'] . "'>" . $barangay['barangay_name'] . "</option>";
                                     }
                                 ?>
                             </select>
@@ -182,10 +258,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 <div class="mb-3">
                     <label for="birthplace" class="form-label">Birthplace</label>
-                    <select class="form-control" id="birthplace" name="birthplace" required>
-                        <option value="Place 1">Place 1</option>
-                        <option value="Place 2">Place 2</option>
-                    </select>
+                    <input type="text" class="form-control" id="birthplace" name="birthplace" required>
                 </div>
 
                 <div class="row">
@@ -202,7 +275,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="mb-3">
                     <label for="sex" class="form-label">Sex</label>
                     <select class="form-control" id="sex" name="sex" required>
@@ -271,30 +344,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
 
                 <div class="mb-3 form-check">
-                    <input type="checkbox" class="form-check-input" id="consent" name="consent" required>
-                    <label class="form-check-label" for="consent">I consent to the process of my data</label>
-                </div>
-
-                <button type="submit" class="btn btn-custom w-100 button-spacing">Confirm Patient</button>
-                <button type="button" class="btn btn-secondary w-100 button-spacing" onclick="reviewPatient()">Review Patient Information</button>
-            </form>
+                            <input type="checkbox" class="form-check-input" id="consent" name="consent" required>
+                            <label class="form-check-label" for="consent">I consent to the process of my data</label>
+                        </div>
+                        <button type="submit" name="review" class="btn btn-custom w-100 button-spacing">Review Patient</button>
+                    </form>
+                <?php endif; ?>
+            </div>
         </div>
     </main>
-
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
     <script>
-    // Add this script to handle the dropdown toggles
-    document.querySelectorAll('.dropdown-btn').forEach(button => {
-        button.addEventListener('click', function () {
-            const dropdownContent = this.nextElementSibling;
-            if (dropdownContent.style.display === 'block') {
-                dropdownContent.style.display = 'none';
-            } else {
-                dropdownContent.style.display = 'block';
-            }
+        const dropdownBtns = document.querySelectorAll(".dropdown-btn");
+        dropdownBtns.forEach(btn => {
+            btn.addEventListener("click", () => {
+                const container = btn.nextElementSibling;
+                const isOpen = container.style.display === "block";
+                document.querySelectorAll(".dropdown-container").forEach(c => c.style.display = "none");
+                container.style.display = isOpen ? "none" : "block";
+            });
         });
-    });
-</script>
+    </script>
 </body>
+
 </html>
